@@ -21,7 +21,7 @@ async function main() {
   const ds = new EnsIndexerStream({
     portal: config.portal.url,
     blockRange: {
-      from: config.blockFrom, // Start from configured block
+      from: 0, // Start from configured block
     },
     args: {
       clickhouseClient: clickhouse,
