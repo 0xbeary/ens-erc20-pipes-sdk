@@ -1,0 +1,6 @@
+[submodule "ens-erc20-pipes/ens-erc20-pipes/pipes/simple-pipe"]
+	path = ens-erc20-pipes/ens-erc20-pipes/pipes/simple-pipe
+	url = https://github.com/subsquid-labs/simple-pipe
+[submodule "ens-erc20-pipes/pipes/simple-pipe"]
+	path = ens-erc20-pipes/pipes/simple-pipe
+	url = https://github.com/subsquid-labs/simple-pipe
