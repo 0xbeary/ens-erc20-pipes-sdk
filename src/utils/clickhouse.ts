@@ -1,5 +1,5 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
+import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
 import * as process from 'node:process';
 import { ClickHouseClient, createClient } from '@clickhouse/client';
 
@@ -41,8 +41,13 @@ export function createClickhouseClient() {
     url: process.env.CLICKHOUSE_URL || 'http://localhost:8123',
     username: process.env.CLICKHOUSE_USER || 'default',
     password: process.env.CLICKHOUSE_PASSWORD || '',
+    database: process.env.CLICKHOUSE_DB || 'default',
     clickhouse_settings: {
       date_time_input_format: 'best_effort',
     },
   });
+}
+
+export function toUnixTime(date: Date) {
+  return Math.floor(date.getTime() / 1000);
 }

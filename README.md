@@ -10,13 +10,18 @@ This software is in early beta. Interfaces of the components involved can change
 
 ```bash
 # Install dependencies
-yarn install --frozen-lockfile
+pnpm install
 
 # Start ClickHouse
 docker compose up -d
 
-# Start the swaps indexer
-yarn ts-node src/main.ts
+# Start the main indexer (src/main.ts)
+pnpm start
+# or alternatively: pnpm exec ts-node src/main.ts
+
+# Start the CLI indexer (src/cli.ts)
+pnpm run start:cli
+# or alternatively: pnpm exec ts-node src/cli.ts
 ```
 You can now visit the local [ClickHouse console](http://localhost:8123/play) and observe the data that the pipe produces:
 ```sql
