@@ -110,7 +110,7 @@ async function main() {
     });
     
     // Log processing progress with block information
-    logger.info(`Processed ${events.length} events from block ${blockNumber} (${blockHash.slice(0, 10)}...)`);
+    logger.info(`Processed ${events.length} events - block ${blockNumber} (${blockHash.slice(0, 10)}...)`);
     
     // Acknowledge successful processing
     await ds.ack();

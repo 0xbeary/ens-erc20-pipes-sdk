@@ -152,7 +152,6 @@ export class EnsIndexerStream extends PortalAbstractStream<EnsEvent, Args> {
 
           // Only emit batches that contain events
           if (allEvents.length > 0) {
-            this.logger.info(`Processed ${allEvents.length} events`);
             controller.enqueue(allEvents);
           }
         },
