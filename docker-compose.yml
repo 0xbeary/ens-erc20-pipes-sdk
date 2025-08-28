@@ -1,13 +1,8 @@
-volumes:
-  clickhouse-db:
-
 services:
   clickhouse:
     image: bitnami/clickhouse:latest
-    container_name: ens-erc20-pipes_clickhouse
+    container_name: simple_pipe_clickhouse
     ports:
       - '8123:8123'
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
-    volumes:
-      - clickhouse-db:/bitnami/clickhouse
