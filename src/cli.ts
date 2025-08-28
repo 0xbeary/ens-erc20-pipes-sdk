@@ -3,7 +3,7 @@ import { createClickhouseClient, ensureTables, toUnixTime } from './utils/clickh
 import { createLogger } from './utils/logger';
 import { getConfig } from '../config';
 import { ClickhouseState } from '@sqd-pipes/core';
-import { EnsIndexerStream } from './streams/ens.delegates';
+import { EnsIndexerStream } from './streams/ens.stream';
 
 const config = getConfig();
 
