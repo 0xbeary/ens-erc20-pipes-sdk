@@ -1,14 +1,3 @@
-CREATE TABLE IF NOT EXISTS sync_status
-(
-    id                  String,
-    block_number        UInt64,
-    block_hash          FixedString(66),
-    timestamp           UInt64,
-    updated_at          DateTime DEFAULT now()
-)
-ENGINE = ReplacingMergeTree(updated_at)
-ORDER BY (id);
-
 CREATE TABLE IF NOT EXISTS ens_events
 (
     id                  UInt64 DEFAULT rowNumberInAllBlocks(),  -- Auto-incrementing ID (ClickHouse way)

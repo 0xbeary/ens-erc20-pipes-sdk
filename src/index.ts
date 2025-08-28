@@ -1,5 +1,5 @@
 import * as path from 'node:path';
-import { createClickhouseClient, ensureTables } from './utils/clickhouse';
+import { createClickhouseClient, ensureTables, toUnixTime } from './utils/clickhouse';
 import { createLogger } from './utils/logger';
 import { getConfig } from '../config';
 import { ClickhouseState } from '@sqd-pipes/core';
@@ -14,17 +14,16 @@ logger.debug('indexer started');
 
 async function main() {
   // Initialize ClickHouse client and ensure tables exist
-  const clickhouse = await createClickhouseClient();
+  const clickhouse = createClickhouseClient();
   await ensureTables(clickhouse, __dirname);
 
   // Setup the ENS event stream
   const ds = new EnsIndexerStream({
     portal: config.portal.url,
     blockRange: {
-      from: 0, // Start from configured block
+      from: config.blockFrom, // Start from configured block (only used on first run, state manager handles resumption)
     },
     args: {
-      clickhouseClient: clickhouse,
       contracts: [config.contractAddress], // ENS token contract
     },
     logger,
@@ -33,22 +32,8 @@ async function main() {
       table: `sync_status`,
       database: 'default',
       id: `ens-indexer`,
-      // Handle blockchain reorganizations
-      onRollback: async ({ state, latest }) => {
-        logger.info(`ROLLBACK called. latest.timestamp: ${latest.timestamp}`);
-        if (!latest.timestamp) {
-          return; // fresh table
-        }
-        // Remove events from rolled-back blocks
-        await state.removeAllRows({
-          table: `ens_events`,
-          where: `block_timestamp > ${latest.timestamp}`,
-        });
-        logger.info(`ROLLBACK finished. Rows are removed`);
-      },
     }),
   });
-  await ds.initialize();
 
   // Process events in batches
   for await (const events of await ds.stream()) {
@@ -76,7 +61,7 @@ async function main() {
             contract_address: e.token_address,
             block_hash: e.block.hash,
             block_number: e.block.number,
-            block_timestamp: e.timestamp, // Timestamp from the stream
+            block_timestamp: toUnixTime(e.timestamp), // Convert to Unix timestamp for consistent state management
         }
 
         // Add event-specific fields based on type

@@ -1,5 +1,4 @@
-import { BlockRef, PortalAbstractStream } from '@sqd-pipes/core';
-import { NodeClickHouseClient } from '@clickhouse/client/dist/client';
+import { type BlockRef, type OptionalArgs, PortalAbstractStream } from '@sqd-pipes/core';
 import { events as abi_events } from '../abi/ens.abi';
 
 // Define types for the events we are interested in
@@ -37,17 +36,12 @@ export type EnsEvent = (
   timestamp: Date;
 };
 
-type Args = {
-  clickhouseClient: NodeClickHouseClient;
-  contracts?: string[];
-};
-
-export class EnsIndexerStream extends PortalAbstractStream<EnsEvent, Args> {
-  async initialize() {
-    // Initialize any internal state if needed
-    // For now, this is empty but the method needs to exist
-  }
-
+export class EnsIndexerStream extends PortalAbstractStream<
+  EnsEvent,
+  OptionalArgs<{
+    contracts?: string[]
+  }>
+> {
   async stream(): Promise<ReadableStream<EnsEvent[]>> {
     // Request raw blockchain data from SQD Portal
     const source = await this.getStream({
