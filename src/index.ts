@@ -58,6 +58,11 @@ async function main() {
       continue;
     }
     
+    // Get block information for logging
+    const firstEvent = events[0];
+    const blockNumber = firstEvent.block.number;
+    const blockHash = firstEvent.block.hash;
+    
     // Insert events into ClickHouse
     await clickhouse.insert({
       table: `ens_events`,
@@ -103,6 +108,9 @@ async function main() {
       }),
       format: 'JSONEachRow',
     });
+    
+    // Log processing progress with block information
+    logger.info(`Processed ${events.length} events from block ${blockNumber} (${blockHash.slice(0, 10)}...)`);
     
     // Acknowledge successful processing
     await ds.ack();
