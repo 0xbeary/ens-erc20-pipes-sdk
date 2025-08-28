@@ -15,13 +15,9 @@ pnpm install
 # Start ClickHouse
 docker compose up -d
 
-# Start the main indexer (src/main.ts)
+# Start the indexer (src/index.ts)
 pnpm start
-# or alternatively: pnpm exec ts-node src/main.ts
-
-# Start the CLI indexer (src/cli.ts)
-pnpm run start:cli
-# or alternatively: pnpm exec ts-node src/cli.ts
+# or alternatively: pnpm exec ts-node src/index.ts
 ```
 You can now visit the local [ClickHouse console](http://localhost:8123/play) and observe the data that the pipe produces:
 ```sql

@@ -1,7 +1,6 @@
 {
   "scripts": {
-    "start": "ts-node src/main.ts",
-    "start:cli": "ts-node src/cli.ts"
+    "start": "ts-node src/index.ts"
   },
   "devDependencies": {
     "@subsquid/evm-typegen": "^4.3.0",

@@ -8,7 +8,7 @@ import { EnsIndexerStream } from './streams/ens.stream';
 const config = getConfig();
 
 const logger = createLogger('ens-indexer').child({ network: config.network });
-logger.debug('cli started');
+logger.debug('indexer started');
 
 async function main() {
   const clickhouse = await createClickhouseClient();
