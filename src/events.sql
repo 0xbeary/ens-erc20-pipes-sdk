@@ -148,11 +148,8 @@ SELECT
     new_balance
 FROM ens_delegate_votes_changed;
 
--- Current Token Balances Materialized View (calculated directly from transfers)
-CREATE MATERIALIZED VIEW IF NOT EXISTS current_token_balances
-ENGINE = MergeTree
-ORDER BY address
-AS
+-- Current Token Balances (calculated from transfers)
+CREATE MATERIALIZED VIEW IF NOT EXISTS current_token_balances_mv TO current_token_balances AS
 WITH balance_changes AS (
     -- Credits (receiving tokens)
     SELECT 
@@ -175,49 +172,37 @@ WITH balance_changes AS (
         -toDecimal256(amount, 0) as amount_change
     FROM ens_transfers
     WHERE from_address != '0x0000000000000000000000000000000000000000'
-),
-running_balances AS (
-    SELECT 
-        address,
-        block_number,
-        log_index,
-        sum(amount_change) OVER (
-            PARTITION BY address 
-            ORDER BY block_number, log_index 
-            ROWS UNBOUNDED PRECEDING
-        ) as running_balance
-    FROM balance_changes
-),
-latest_balances AS (
-    SELECT 
-        address,
-        block_number,
-        running_balance,
-        row_number() OVER (PARTITION BY address ORDER BY block_number DESC, log_index DESC) as rn
-    FROM running_balances
 )
 SELECT 
     address,
-    block_number as latest_block_number,
-    toString(running_balance) as current_balance
-FROM latest_balances
-WHERE rn = 1 AND running_balance > 0;
+    sum(amount_change) as balance_change,
+    argMax(block_number, block_timestamp) as latest_block_number
+FROM balance_changes
+GROUP BY address;
+
+CREATE TABLE IF NOT EXISTS current_token_balances
+(
+    address FixedString(42),
+    current_balance String,
+    latest_block_number UInt64
+)
+ENGINE = SummingMergeTree
+ORDER BY address;
 
 -- Current Delegate Power Materialized View (directly from delegate votes changed events)
-CREATE MATERIALIZED VIEW IF NOT EXISTS current_delegate_power
-ENGINE = MergeTree
-ORDER BY delegate_address
-AS
-WITH latest_votes AS (
-    SELECT 
-        delegate,
-        new_balance,
-        block_number,
-        block_timestamp,
-        log_index,
-        row_number() OVER (PARTITION BY delegate ORDER BY block_number DESC, log_index DESC) as rn
-    FROM ens_delegate_votes_changed
+CREATE TABLE IF NOT EXISTS current_delegate_power
+(
+    delegate_address FixedString(42),
+    voting_power String,
+    block_number UInt64,
+    block_timestamp DateTime,
+    log_index UInt32,
+    last_refreshed DateTime
 )
+ENGINE = ReplacingMergeTree(block_timestamp)
+ORDER BY delegate_address;
+
+CREATE MATERIALIZED VIEW IF NOT EXISTS current_delegate_power_mv TO current_delegate_power AS
 SELECT 
     delegate as delegate_address,
     new_balance as voting_power,
@@ -225,14 +210,33 @@ SELECT
     block_timestamp,
     log_index,
     now() as last_refreshed
-FROM latest_votes
-WHERE rn = 1;
+FROM ens_delegate_votes_changed;
+
+CREATE TABLE IF NOT EXISTS current_delegate_power
+(
+    delegate_address FixedString(42),
+    voting_power String,
+    block_number UInt64,
+    block_timestamp DateTime,
+    log_index UInt32,
+    last_refreshed DateTime
+)
+ENGINE = ReplacingMergeTree(block_timestamp, log_index)
+ORDER BY delegate_address;
 
 -- Current Delegations Materialized View (directly from delegate changed events)
-CREATE MATERIALIZED VIEW IF NOT EXISTS current_delegations
-ENGINE = MergeTree
-ORDER BY delegator
-AS
+CREATE TABLE IF NOT EXISTS current_delegations
+(
+    delegator FixedString(42),
+    delegator_balance String,
+    delegate FixedString(42),
+    prior_delegate FixedString(42),
+    delegated_timestamp DateTime
+)
+ENGINE = ReplacingMergeTree(delegated_timestamp)
+ORDER BY delegator;
+
+CREATE MATERIALIZED VIEW IF NOT EXISTS current_delegations_mv TO current_delegations AS
 WITH ranked_delegations AS (
     SELECT 
         delegator,
