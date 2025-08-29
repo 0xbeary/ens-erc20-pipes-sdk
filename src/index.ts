@@ -29,8 +29,8 @@ async function main() {
     logger,
     // Track indexing progress and handle blockchain reorgs
     state: new ClickhouseState(clickhouse, {
-      table: `sync_status`,
-      database: 'default',
+      table: `evm_sync_status`,
+      database: process.env.CLICKHOUSE_DB || 'default',
       id: `ens-indexer`,
     }),
   });
@@ -48,51 +48,70 @@ async function main() {
     const blockNumber = firstEvent.block.number;
     const blockHash = firstEvent.block.hash;
     
-    // Insert events into ClickHouse
-    await clickhouse.insert({
-      table: `ens_events`,
-      values: events.map((e) => {
-        // Common fields for all event types
-        const base = {
-            event_type: e.type,
-            log_index: e.transaction.logIndex,
-            transaction_index: e.transaction.index,
-            transaction_hash: e.transaction.hash,
-            contract_address: e.token_address,
-            block_hash: e.block.hash,
-            block_number: e.block.number,
-            block_timestamp: toUnixTime(e.timestamp), // Convert to Unix timestamp for consistent state management
-        }
-
-        // Add event-specific fields based on type
-        if (e.type === 'Transfer') {
-            return {
-                ...base,
-                from_address: e.from,
-                to_address: e.to,
-                amount: e.amount.toString(), // Convert bigint to string
-            }
-        }
-        if (e.type === 'DelegateChanged') {
-            return {
-                ...base,
-                delegator: e.delegator,
-                from_delegate: e.fromDelegate,
-                to_delegate: e.toDelegate,
-            }
-        }
-        if (e.type === 'DelegateVotesChanged') {
-            return {
-                ...base,
-                delegate: e.delegate,
-                previous_balance: e.previousBalance.toString(), // Convert bigint to string
-                new_balance: e.newBalance.toString(), // Convert bigint to string
-            }
-        }
-        return base;
-      }),
-      format: 'JSONEachRow',
-    });
+    // Group events by type for efficient batch insertion
+    const transferEvents = events.filter(e => e.type === 'Transfer');
+    const delegateChangedEvents = events.filter(e => e.type === 'DelegateChanged');
+    const delegateVotesChangedEvents = events.filter(e => e.type === 'DelegateVotesChanged');
+    
+    // Insert Transfer events
+    if (transferEvents.length > 0) {
+      await clickhouse.insert({
+        table: 'ens_transfers',
+        values: transferEvents.map((e) => ({
+          transaction_hash: e.transaction.hash,
+          log_index: e.transaction.logIndex,
+          transaction_index: e.transaction.index,
+          contract_address: e.token_address,
+          block_hash: e.block.hash,
+          block_number: e.block.number,
+          block_timestamp: toUnixTime(e.timestamp),
+          from_address: e.from,
+          to_address: e.to,
+          amount: e.amount.toString(),
+        })),
+        format: 'JSONEachRow',
+      });
+    }
+    
+    // Insert DelegateChanged events
+    if (delegateChangedEvents.length > 0) {
+      await clickhouse.insert({
+        table: 'ens_delegate_changed',
+        values: delegateChangedEvents.map((e) => ({
+          transaction_hash: e.transaction.hash,
+          log_index: e.transaction.logIndex,
+          transaction_index: e.transaction.index,
+          contract_address: e.token_address,
+          block_hash: e.block.hash,
+          block_number: e.block.number,
+          block_timestamp: toUnixTime(e.timestamp),
+          delegator: e.delegator,
+          from_delegate: e.fromDelegate,
+          to_delegate: e.toDelegate,
+        })),
+        format: 'JSONEachRow',
+      });
+    }
+    
+    // Insert DelegateVotesChanged events
+    if (delegateVotesChangedEvents.length > 0) {
+      await clickhouse.insert({
+        table: 'ens_delegate_votes_changed',
+        values: delegateVotesChangedEvents.map((e) => ({
+          transaction_hash: e.transaction.hash,
+          log_index: e.transaction.logIndex,
+          transaction_index: e.transaction.index,
+          contract_address: e.token_address,
+          block_hash: e.block.hash,
+          block_number: e.block.number,
+          block_timestamp: toUnixTime(e.timestamp),
+          delegate: e.delegate,
+          previous_balance: e.previousBalance.toString(),
+          new_balance: e.newBalance.toString(),
+        })),
+        format: 'JSONEachRow',
+      });
+    }
     
     // Log processing progress with block information
     logger.info(`Processed ${events.length} events - block ${blockNumber} (${blockHash.slice(0, 10)}...)`);

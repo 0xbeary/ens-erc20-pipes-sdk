@@ -1,6 +1,6 @@
-# simple-pipe
+# ens-erc20-indexer-pipes-sdk
 
-A small Solana data pipe powered by Soldexer. Gets the balances of USDT wallets that moved the token and computes hourly averages. Can be used to track the relative dominance of large vs small players chainwide.
+A small EVM data pipe powered by Pipes SDK. Gets the balances of USDT wallets that moved the token and computes hourly averages. Can be used to track the relative dominance of large vs small players chainwide.
 
 See the [Soldexer pipes overview](https://docs.soldexer.dev/pipes/overview) as well as `src/main.ts` and `src/transfers.sql` for details.
 
