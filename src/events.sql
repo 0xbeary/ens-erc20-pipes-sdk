@@ -149,6 +149,15 @@ SELECT
 FROM ens_delegate_votes_changed;
 
 -- Current Token Balances (calculated from transfers)
+CREATE TABLE IF NOT EXISTS current_token_balances
+(
+    address FixedString(42),
+    balance_change Decimal(76, 0),
+    latest_block_number UInt64
+)
+ENGINE = SummingMergeTree
+ORDER BY address;
+
 CREATE MATERIALIZED VIEW IF NOT EXISTS current_token_balances_mv TO current_token_balances AS
 WITH balance_changes AS (
     -- Credits (receiving tokens)
@@ -157,7 +166,10 @@ WITH balance_changes AS (
         block_number,
         block_timestamp,
         log_index,
-        toDecimal256(amount, 0) as amount_change
+        CASE 
+            WHEN amount = '' OR amount IS NULL THEN 0
+            ELSE toDecimal256(amount, 0)
+        END as amount_change
     FROM ens_transfers
     WHERE to_address != '0x0000000000000000000000000000000000000000'
     
@@ -169,7 +181,10 @@ WITH balance_changes AS (
         block_number,
         block_timestamp,
         log_index,
-        -toDecimal256(amount, 0) as amount_change
+        CASE 
+            WHEN amount = '' OR amount IS NULL THEN 0
+            ELSE -toDecimal256(amount, 0)
+        END as amount_change
     FROM ens_transfers
     WHERE from_address != '0x0000000000000000000000000000000000000000'
 )
@@ -179,15 +194,6 @@ SELECT
     argMax(block_number, block_timestamp) as latest_block_number
 FROM balance_changes
 GROUP BY address;
-
-CREATE TABLE IF NOT EXISTS current_token_balances
-(
-    address FixedString(42),
-    current_balance String,
-    latest_block_number UInt64
-)
-ENGINE = SummingMergeTree
-ORDER BY address;
 
 -- Current Delegate Power Materialized View (directly from delegate votes changed events)
 CREATE TABLE IF NOT EXISTS current_delegate_power
@@ -211,18 +217,6 @@ SELECT
     log_index,
     now() as last_refreshed
 FROM ens_delegate_votes_changed;
-
-CREATE TABLE IF NOT EXISTS current_delegate_power
-(
-    delegate_address FixedString(42),
-    voting_power String,
-    block_number UInt64,
-    block_timestamp DateTime,
-    log_index UInt32,
-    last_refreshed DateTime
-)
-ENGINE = ReplacingMergeTree(block_timestamp, log_index)
-ORDER BY delegate_address;
 
 -- Current Delegations Materialized View (directly from delegate changed events)
 CREATE TABLE IF NOT EXISTS current_delegations
@@ -249,7 +243,7 @@ WITH ranked_delegations AS (
 )
 SELECT 
     rd.delegator,
-    coalesce(ctb.current_balance, '0') as delegator_balance,
+    coalesce(toString(ctb.balance_change), '0') as delegator_balance,
     rd.delegate,
     rd.prior_delegate,
     rd.block_timestamp as delegated_timestamp
@@ -265,9 +259,19 @@ AS
 WITH delegate_stats AS (
     SELECT 
         delegate as delegate_address,
-        sum(toDecimal256(delegator_balance, 0)) as voting_power,
+        sum(
+            CASE 
+                WHEN delegator_balance = '' OR delegator_balance IS NULL THEN 0
+                ELSE toDecimal256(delegator_balance, 0)
+            END
+        ) as voting_power,
         count(DISTINCT delegator) as delegations,
-        countIf(toDecimal256(delegator_balance, 0) >= 1000000000000000000) as non_zero_delegations
+        countIf(
+            CASE 
+                WHEN delegator_balance = '' OR delegator_balance IS NULL THEN 0
+                ELSE toDecimal256(delegator_balance, 0)
+            END >= 1000000000000000000
+        ) as non_zero_delegations
     FROM current_delegations
     WHERE lower(delegate) != '0x0000000000000000000000000000000000000000'
     GROUP BY delegate
@@ -289,6 +293,8 @@ delegate_power_30d AS (
         argMax(new_balance, block_timestamp) as voting_power_30d_ago
     FROM ens_delegate_votes_changed
     WHERE block_timestamp <= (now() - INTERVAL 30 DAY)
+      AND new_balance != ''
+      AND new_balance IS NOT NULL
     GROUP BY delegate
 )
 SELECT 
@@ -298,7 +304,13 @@ SELECT
     coalesce(dp30.voting_power_30d_ago, '0') as voting_power_30d_ago,
     rd.delegations,
     rd.non_zero_delegations,
-    toString(rd.voting_power - toDecimal256(coalesce(dp30.voting_power_30d_ago, '0'), 0)) as power_change_30d
+    toString(
+        rd.voting_power - 
+        CASE 
+            WHEN dp30.voting_power_30d_ago = '' OR dp30.voting_power_30d_ago IS NULL THEN 0
+            ELSE toDecimal256(dp30.voting_power_30d_ago, 0)
+        END
+    ) as power_change_30d
 FROM ranked_delegates rd
 LEFT JOIN delegate_power_30d dp30 ON dp30.delegate_address = rd.delegate_address
 ORDER BY rd.voting_power DESC;
