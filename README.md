@@ -19,16 +19,16 @@ Typescript codegen from the contract ABI:
 `npx @subsquid/evm-typegen src/packages/streams/src/streams/evm/contracts 0xC18360217D8F7Ab5e7c516566761Ea12Ce7F9D72 --etherscan-api-key $ETHERSCAN_API`
 
 Create a new stream from the desired events
-`packages/streams/src/streams/evm/ens.ts`
+`src/streams/ens.stream.ts`
 
 Generate clickhouse tables for the raw events
 `npx events-to-table generate --from address --contract 0xC18360217D8F7Ab5e7c516566761Ea12Ce7F9D72 --etherscan $ETHERSCAN_API --output src/db/sql/ens.sql --table-prefix ens_evt`
 
 Forward the events from the stream to the desired table
-`packages/evm-pipes/src/indexers/ens.ts`
+`src/indexers/ens.indexer.ts`
 
 
-## Running the pipe
+## Running the indexer
 
 ```bash
 # Install dependencies
