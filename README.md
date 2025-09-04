@@ -1,10 +1,29 @@
 # ens-erc20-indexer-pipes-sdk
 
-A small EVM data pipe powered by Pipes SDK. Gets the balances of USDT wallets that moved the token and computes hourly averages. Can be used to track the relative dominance of large vs small players chainwide.
+This pipe demonstrates generating a full local event stream from events from any contract:
 
-See the [Soldexer pipes overview](https://docs.soldexer.dev/pipes/overview) as well as `src/main.ts` and `src/transfers.sql` for details.
+All you need to do is to:
 
-This software is in early beta. Interfaces of the components involved can change without notice.
+1. Create a an abi file
+2. generate tables
+3. generate a stream
+4. add other data sources
+5. create materialised views for real time data 
+
+### Steps to create indexer
+
+Typescript codegen from the contract ABI:
+`npx @subsquid/evm-typegen src/packages/streams/src/streams/evm/contracts 0xC18360217D8F7Ab5e7c516566761Ea12Ce7F9D72 --etherscan-api-key $ETHERSCAN_API`
+
+Create a new stream from the desired events
+`packages/streams/src/streams/evm/ens.ts`
+
+Generate clickhouse tables for the raw events
+`npx events-to-table generate --from address --contract 0xC18360217D8F7Ab5e7c516566761Ea12Ce7F9D72 --etherscan $ETHERSCAN_API --output src/db/sql/ens.sql --table-prefix ens_evt`
+
+Forward the events from the stream to the desired table
+`packages/evm-pipes/src/indexers/ens.ts`
+
 
 ## Running the pipe
 

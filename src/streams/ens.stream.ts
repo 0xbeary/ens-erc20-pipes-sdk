@@ -1,155 +1,17 @@
-import { type BlockRef, type OptionalArgs, PortalAbstractStream } from '@sqd-pipes/core';
-import { events as abi_events } from '../abi/ens.abi';
+import { events } from '../abi/ens.abi'
+import { type Events, EvmDecodedEventStream } from '../utils/decoding/events.stream'
 
-// Define types for the events we are interested in
-export type Transfer = {
-  from: string;
-  to: string;
-  amount: bigint;
-};
+type ParamsWithoutArgs<T extends Events> = Omit<
+  ConstructorParameters<typeof EvmDecodedEventStream<T>>[0],
+  'args'
+>
 
-export type DelegateChanged = {
-  delegator: string;
-  fromDelegate: string;
-  toDelegate: string;
-};
-
-export type DelegateVotesChanged = {
-  delegate: string;
-  previousBalance: bigint;
-  newBalance: bigint;
-};
-
-// Union type for all ENS events with common fields
-export type EnsEvent = (
-  | ({ type: 'Transfer' } & Transfer)
-  | ({ type: 'DelegateChanged' } & DelegateChanged)
-  | ({ type: 'DelegateVotesChanged' } & DelegateVotesChanged)
-) & {
-  token_address: string;
-  block: BlockRef;
-  transaction: {
-    hash: string;
-    index: number;
-    logIndex: number;
-  };
-  timestamp: Date;
-};
-
-export class EnsIndexerStream extends PortalAbstractStream<
-  EnsEvent,
-  OptionalArgs<{
-    contracts?: string[]
-  }>
-> {
-  async stream(): Promise<ReadableStream<EnsEvent[]>> {
-    // Request raw blockchain data from SQD Portal
-    const source = await this.getStream({
-      type: 'evm',
-      fields: {
-        block: {
-          number: true,
-          hash: true,
-          timestamp: true,
-        },
-        transaction: {
-          from: true,
-          to: true,
-          hash: true,
-        },
-        log: {
-          address: true,
-          topics: true,
-          data: true,
-          transactionHash: true,
-          logIndex: true,
-          transactionIndex: true,
-        },
-      },
-      logs: [
-        {
-          address: this.options.args?.contracts,
-          // Filter for the three ENS events we care about
-          topic0: [
-            abi_events.Transfer.topic,
-            abi_events.DelegateChanged.topic,
-            abi_events.DelegateVotesChanged.topic,
-          ],
-        },
-      ],
-    });
-
-    // Transform raw blockchain data into structured events
-    return source.pipeThrough(
-      new TransformStream({
-        transform: async ({ blocks }, controller) => {
-          const allEvents = blocks
-            // Only process blocks that have logs
-            .filter((block: any) => block.logs)
-            // Flatten: blocks → logs → events
-            .flatMap((block: any) => 
-              block.logs
-                // Transform each log into an ENS event
-                .map((log: any) => {
-                  // Common fields for all event types
-                  const common = {
-                    token_address: log.address,
-                    block: block.header,
-                    transaction: {
-                      hash: log.transactionHash,
-                      index: log.transactionIndex,
-                      logIndex: log.logIndex,
-                    },
-                    // Convert Unix timestamp (seconds) to JavaScript Date
-                    timestamp: new Date(block.header.timestamp * 1000),
-                  };
-
-                  try {
-                    // Decode the specific event type based on topic0
-                    if (abi_events.Transfer.is(log)) {
-                      const decoded = abi_events.Transfer.decode(log);
-                      return {
-                        ...common,
-                        type: 'Transfer',
-                        from: decoded.from,
-                        to: decoded.to,
-                        amount: decoded.value,
-                      };
-                    } else if (abi_events.DelegateChanged.is(log)) {
-                      const decoded = abi_events.DelegateChanged.decode(log);
-                      return {
-                        ...common,
-                        type: 'DelegateChanged',
-                        delegator: decoded.delegator,
-                        fromDelegate: decoded.fromDelegate,
-                        toDelegate: decoded.toDelegate,
-                      };
-                    } else if (abi_events.DelegateVotesChanged.is(log)) {
-                      const decoded = abi_events.DelegateVotesChanged.decode(log);
-                      return {
-                        ...common,
-                        type: 'DelegateVotesChanged',
-                        delegate: decoded.delegate,
-                        previousBalance: decoded.previousBalance,
-                        newBalance: decoded.newBalance,
-                      };
-                    }
-                    return null; // Unknown event type
-                  } catch (e) {
-                    this.logger.error(`Error decoding event: ${e}`);
-                    return null; // Failed to decode
-                  }
-                })
-                // Remove failed/null events
-                .filter((event: EnsEvent | null) => event !== null)
-            );
-
-          // Only emit batches that contain events
-          if (allEvents.length > 0) {
-            controller.enqueue(allEvents);
-          }
-        },
-      }),
-    );
-  }
-}
+export const EnsEventStream = (params: ParamsWithoutArgs<typeof events>) =>
+  new EvmDecodedEventStream({
+    ...params,
+    args: {
+      contracts: ['0xC18360217D8F7Ab5e7c516566761Ea12Ce7F9D72'],
+      events,
+    },
+  })
+  

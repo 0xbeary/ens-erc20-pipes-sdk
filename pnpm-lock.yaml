@@ -12,8 +12,8 @@ importers:
         specifier: ^1.10.1
         version: 1.12.1
       '@sqd-pipes/core':
-        specifier: 0.0.1-alpha.5
-        version: 0.0.1-alpha.5(@clickhouse/client@1.12.1)
+        specifier: 0.0.1-alpha.6
+        version: 0.0.1-alpha.6(@clickhouse/client@1.12.1)
       '@subsquid/borsh':
         specifier: ^0.3.0
         version: 0.3.0
@@ -438,8 +438,8 @@ packages:
     resolution: {integrity: sha512-mYqtQXPmrwvUljaHyGxYUIIRI3qjBTEb/f5QFi3A6VlxhpmZd5mWXn9W+qUkf2pVE1Hv3SqxefiZOPGdxmO64A==}
     engines: {node: '>=18.0.0'}
 
-  '@sqd-pipes/core@0.0.1-alpha.5':
-    resolution: {integrity: sha512-tUQ8rLaRjkWsj2kVjc6f6doFCcrlfZi4u5Ur7V0Zk3alTBQVBlQW+4gxkJMUp9oJm4G3Aocn1OZgkLlEEiDaKA==}
+  '@sqd-pipes/core@0.0.1-alpha.6':
+    resolution: {integrity: sha512-VUYBWVOvQMnwT+AYwILOQBBli/JifDj0d+wGrpudKgAsYyZx3QUckolL9TKWQUIi8H1izGZtezmCbhcaYzsYTw==}
     engines: {node: <=23.9.0}
     peerDependencies:
       '@clickhouse/client': ^1.11.2
@@ -1672,7 +1672,7 @@ snapshots:
       '@smithy/types': 4.3.2
       tslib: 2.8.1
 
-  '@sqd-pipes/core@0.0.1-alpha.5(@clickhouse/client@1.12.1)':
+  '@sqd-pipes/core@0.0.1-alpha.6(@clickhouse/client@1.12.1)':
     dependencies:
       '@subsquid/http-client': 1.6.1
       '@subsquid/util-internal': 3.2.0
