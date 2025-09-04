@@ -32,7 +32,7 @@ export async function indexEnsEvents(
   datasetHeight: string | number,
   network: Network = 'ethereum-mainnet',
 ) {
-  await ensureTables(client, './src/sql/events.sql')
+  await ensureTables(client, './src/db/sql/ens.sql')
 
   const ensEvents = EnsEventStream({
     portal: `${portalUrl}/datasets/${network}`,
