@@ -7,7 +7,10 @@ All you need to do is to:
 1. Create a an abi file
 2. generate tables
 3. generate a stream
-4. add other data sources
+
+Then you can:
+
+4. add other data sources / streams for rich data experiences
 5. create materialised views for real time data 
 
 ### Steps to create indexer
