@@ -43,7 +43,7 @@ export async function indexEnsEvents(
     state: new ClickhouseState(client, {
       table: 'evm_sync_status',
       id: 'ens_events',
-      database: process.env.CLICKHOUSE_DATABASE,
+      database: process.env.CLICKHOUSE_DB,
       onRollback: getDefaultRollback(tableNames),
     }),
     logger,
