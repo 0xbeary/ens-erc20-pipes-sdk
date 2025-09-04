@@ -1,8 +1,9 @@
 import { ClickHouseClient } from '@clickhouse/client'
 import { ClickhouseState } from '@sqd-pipes/core'
 
-import { DatabaseBatch, ensureTables, getDefaultRollback, logger } from './utils'
+import { DatabaseBatch, ensureTables, getDefaultRollback, logger, createClickhouseClient } from './utils'
 import { EnsEventStream } from './streams/ens.stream'
+import { getConfig } from '../config'
 
 const TABLE_PREFIX = 'ens_evt'
 
@@ -32,7 +33,7 @@ export async function indexEnsEvents(
   datasetHeight: string | number,
   network: Network = 'ethereum-mainnet',
 ) {
-  await ensureTables(client, './src/db/sql/ens.sql')
+  await ensureTables(client, './src/events.sql')
 
   const ensEvents = EnsEventStream({
     portal: `${portalUrl}/datasets/${network}`,
@@ -66,4 +67,34 @@ export async function indexEnsEvents(
 
     await ensEvents.ack()
   }
+}
+
+// Main execution
+async function main() {
+  const config = getConfig()
+  const client = createClickhouseClient()
+  
+  logger.info(`Starting ENS indexer on ${config.network}`)
+  logger.info(`Portal URL: ${config.portal.url}`)
+  logger.info(`Starting from block: ${config.blockFrom}`)
+  
+  try {
+    await indexEnsEvents(
+      client,
+      config.portal.url,
+      config.blockFrom,
+      config.network === 'mainnet' ? 'ethereum-mainnet' : 'base-mainnet'
+    )
+  } catch (error) {
+    logger.error({ error }, 'Indexer failed')
+    process.exit(1)
+  }
+}
+
+// Run the main function if this file is executed directly
+if (require.main === module) {
+  main().catch((error) => {
+    console.error('Fatal error:', error)
+    process.exit(1)
+  })
 }
