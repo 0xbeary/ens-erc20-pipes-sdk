@@ -15,6 +15,7 @@ async function main() {
     await indexEnsEvents(
       client,
       config.portal.url,
+      [...config.contractAddress],
       config.blockFrom,
       config.network === 'mainnet' ? 'ethereum-mainnet' : 'base-mainnet'
     )

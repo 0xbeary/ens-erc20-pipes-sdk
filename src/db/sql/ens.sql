@@ -56,14 +56,14 @@ CREATE TABLE IF NOT EXISTS ens_evt_delegate_votes_changed (
 ENGINE = CollapsingMergeTree(sign)
 PARTITION BY toYYYYMM(timestamp)
 ORDER BY (block_number, timestamp);
-
+-- FixedString(66)
 CREATE TABLE IF NOT EXISTS ens_evt_merkle_root_changed (
     block_number UInt32 CODEC (DoubleDelta, ZSTD),
     transaction_hash FixedString(66),
     contract LowCardinality(FixedString(42)),
     log_index UInt16,
     timestamp DateTime CODEC (DoubleDelta, ZSTD),
-    merkle_root FixedString(32),
+    merkle_root FixedString(66),
     sign Int8 DEFAULT 1
 )
 ENGINE = CollapsingMergeTree(sign)

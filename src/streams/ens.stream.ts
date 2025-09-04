@@ -6,12 +6,14 @@ type ParamsWithoutArgs<T extends Events> = Omit<
   'args'
 >
 
-export const EnsEventStream = (params: ParamsWithoutArgs<typeof events>) =>
+export const EnsEventStream = (
+  params: ParamsWithoutArgs<typeof events>,
+  contracts: string[]
+) =>
   new EvmDecodedEventStream({
     ...params,
     args: {
-      contracts: ['0xC18360217D8F7Ab5e7c516566761Ea12Ce7F9D72'],
+      contracts,
       events,
     },
   })
-  

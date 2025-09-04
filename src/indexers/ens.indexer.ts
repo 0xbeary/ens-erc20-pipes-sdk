@@ -29,6 +29,7 @@ export type Network = 'base-mainnet' | 'ethereum-mainnet'
 export async function indexEnsEvents(
   client: ClickHouseClient,
   portalUrl: string,
+  contracts: string[],
   datasetHeight: string | number,
   network: Network = 'ethereum-mainnet',
 ) {
@@ -46,7 +47,7 @@ export async function indexEnsEvents(
       onRollback: getDefaultRollback(tableNames),
     }),
     logger,
-  })
+  }, contracts)
 
   const stream = await ensEvents.stream()
   const dbBatch = new DatabaseBatch(client)
