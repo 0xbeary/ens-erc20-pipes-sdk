@@ -8,9 +8,18 @@ importers:
 
   .:
     dependencies:
+      '@bufbuild/protobuf':
+        specifier: 1.8.0
+        version: 1.8.0
       '@clickhouse/client':
         specifier: ^1.10.1
         version: 1.12.1
+      '@connectrpc/connect':
+        specifier: 1.3.0
+        version: 1.3.0(@bufbuild/protobuf@1.8.0)
+      '@connectrpc/connect-web':
+        specifier: 1.3.0
+        version: 1.3.0(@bufbuild/protobuf@1.8.0)(@connectrpc/connect@1.3.0(@bufbuild/protobuf@1.8.0))
       '@sqd-pipes/core':
         specifier: 0.0.1-alpha.6
         version: 0.0.1-alpha.6(@clickhouse/client@1.12.1)
@@ -26,6 +35,12 @@ importers:
       '@subsquid/solana-stream':
         specifier: 1.0.0-portal-api.da1f68
         version: 1.0.0-portal-api.da1f68(@subsquid/util-internal-fs@0.2.0)
+      '@substreams/core':
+        specifier: 0.16.0
+        version: 0.16.0(@bufbuild/protobuf@1.8.0)(@connectrpc/connect@1.3.0(@bufbuild/protobuf@1.8.0))
+      '@substreams/manifest':
+        specifier: ^0.0.9
+        version: 0.0.9
       dotenv:
         specifier: ^16.4.5
         version: 16.6.1
@@ -205,6 +220,62 @@ packages:
     resolution: {integrity: sha512-kLO7k7cGJ6KaHiExSJWojZurF7SnGMDHXRuQunFnEoD0n1yB6Lqy/S/zHiQ7oJnBhPr9q0TW9qFkrsZb1Uc54w==}
     engines: {node: '>=18.0.0'}
 
+  '@bufbuild/buf-darwin-arm64@1.57.0':
+    resolution: {integrity: sha512-XKmb6cb1n23+5cgiwHqNRuGnrDv4yTBAsakjw3b/wP5WahIdloS/6ixoC1FdxuLt79fDqdhXbvCCeM0QOBAmRg==}
+    engines: {node: '>=12'}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@bufbuild/buf-darwin-x64@1.57.0':
+    resolution: {integrity: sha512-lCu5DJ63VfzTsoKz8iA8ZJMUTECaJABHEoQdlWnhh9MpoPr5Sd1l+uZvh0m1eBO9sVrKPAZFmYsjLGc/tpmbPA==}
+    engines: {node: '>=12'}
+    cpu: [x64]
+    os: [darwin]
+
+  '@bufbuild/buf-linux-aarch64@1.57.0':
+    resolution: {integrity: sha512-LjFsPinUzvJ7BiHzlzQm1Dv5EQLUCFPtsxROVgluhX9iQOxxDtwbjsv0E/toKsJk35PQXwAsVKJlswR1CZ9bFQ==}
+    engines: {node: '>=12'}
+    cpu: [arm64]
+    os: [linux]
+
+  '@bufbuild/buf-linux-armv7@1.57.0':
+    resolution: {integrity: sha512-sHThZvZgXiyQtAZEviZG4EDuc4MhZhrBrRmGR3uLRWiZ1BTVr6LCtOto3AWoXvcyORTfmEpAMLSFb/XfoO7NIg==}
+    engines: {node: '>=12'}
+    cpu: [arm]
+    os: [linux]
+
+  '@bufbuild/buf-linux-x64@1.57.0':
+    resolution: {integrity: sha512-QdrvXX2JNMf0385egPSsOJZkOsOBca7LDFll1doC7Fo2W8cP//KXvVqPIMNA1Blq/sHyx7J8sbbf0w/iQo7kVw==}
+    engines: {node: '>=12'}
+    cpu: [x64]
+    os: [linux]
+
+  '@bufbuild/buf-win32-arm64@1.57.0':
+    resolution: {integrity: sha512-TRPzAiSwlQHwJmb3BD1Yzn7dREjbkebnMJ9R/AAn8uB4dE4eJqo8vG4L5t5laARkaCvt7EwlUghwXLdJvXHoQQ==}
+    engines: {node: '>=12'}
+    cpu: [arm64]
+    os: [win32]
+
+  '@bufbuild/buf-win32-x64@1.57.0':
+    resolution: {integrity: sha512-2yGkSo4ei/IIeh1wkzJo0JIoZhn0KdrhlTUlcJbqgvaJ5UXZsGQFE3pZ2zh2gmcx2qSRUthzrBs2c5PL8lvl7g==}
+    engines: {node: '>=12'}
+    cpu: [x64]
+    os: [win32]
+
+  '@bufbuild/buf@1.57.0':
+    resolution: {integrity: sha512-dQgrxSh+3gilB3fJam+Dn39ve/3YU8IPt03WvKqQdldwC5GhGHRHgl7tivVLOP+RyBHs1jnDK7lknXFGLGV65g==}
+    engines: {node: '>=12'}
+    hasBin: true
+
+  '@bufbuild/connect@0.12.0':
+    resolution: {integrity: sha512-rYn3Akp7teOkvqxguLbf6QKizH37Yeo33lseV+JHDZC19CsAV9wrrZM17Sa+LNEBj/hrYtQF7EIcllgGxhv9aw==}
+    deprecated: Connect has moved to its own org @connectrpc and has a stable v1. Run `npx @connectrpc/connect-migrate@latest` to update. See https://github.com/connectrpc/connect-es/releases/tag/v0.13.1 for details.
+    peerDependencies:
+      '@bufbuild/protobuf': ^1.2.1
+
+  '@bufbuild/protobuf@1.8.0':
+    resolution: {integrity: sha512-qR9FwI8QKIveDnUYutvfzbC21UZJJryYrLuZGjeZ/VGz+vXelUkK+xgkOHsvPEdYEdxtgUUq4313N8QtOehJ1Q==}
+
   '@clickhouse/client-common@1.12.1':
     resolution: {integrity: sha512-ccw1N6hB4+MyaAHIaWBwGZ6O2GgMlO99FlMj0B0UEGfjxM9v5dYVYql6FpP19rMwrVAroYs/IgX2vyZEBvzQLg==}
 
@@ -212,9 +283,32 @@ packages:
     resolution: {integrity: sha512-7ORY85rphRazqHzImNXMrh4vsaPrpetFoTWpZYueCO2bbO6PXYDXp/GQ4DgxnGIqbWB/Di1Ai+Xuwq2o7DJ36A==}
     engines: {node: '>=16'}
 
+  '@connectrpc/connect-web@1.3.0':
+    resolution: {integrity: sha512-8HSY8x6douX1LcSFsGEUdjs9jwBe9X+LxkCI8hCtH7vKUCZieQqkRWstoApeIJchHYTaQYqwy2ImKnvwyWwruA==}
+    peerDependencies:
+      '@bufbuild/protobuf': ^1.4.2
+      '@connectrpc/connect': 1.3.0
+
+  '@connectrpc/connect@1.3.0':
+    resolution: {integrity: sha512-kTeWxJnLLtxKc2ZSDN0rIBgwfP8RwcLknthX4AKlIAmN9ZC4gGnCbwp+3BKcP/WH5c8zGBAWqSY3zeqCM+ah7w==}
+    peerDependencies:
+      '@bufbuild/protobuf': ^1.4.2
+
   '@cspotcode/source-map-support@0.8.1':
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
     engines: {node: '>=12'}
+
+  '@effect/data@0.17.6':
+    resolution: {integrity: sha512-/vwz7Jh05eS0qY8kczR/YyJd18d0C+PMtUkAealh4f6gwvhABLGCnktNJTcq/+UHxY0Cbv18r5uaJ4+7PPC+WQ==}
+    deprecated: this package has been merged into the main effect package
+
+  '@effect/io@0.37.1':
+    resolution: {integrity: sha512-Ez3GfcG+gDDfAiBXtSjJpSrPU5Guiyw69LsYkMtIukFwyNwpHWLhYaVgfVbVjoQasil8KiFSQJSd5DbJL6nqPg==}
+    deprecated: this package has been merged into the main effect package
+
+  '@effect/schema@0.32.0':
+    resolution: {integrity: sha512-4HJK/cFkVPdIjYICy0eRsL7JuuLJ6mE3aJC5rX9OuUIei/qfctFEEX2NaARjtGX7hACBrRcuJCNwiq+54TTjFw==}
+    deprecated: this package has been merged into the main effect package
 
   '@jridgewell/resolve-uri@3.1.2':
     resolution: {integrity: sha512-bRISgCIjP20/tbWSPWMEi54QVPRZExkuD9lJL+UIxUKtwVJA8wW1Trb1jMs1RFXo1CBTNZ/5hpC9QvmKWdopKw==}
@@ -565,6 +659,18 @@ packages:
   '@subsquid/util-timeout@2.3.2':
     resolution: {integrity: sha512-DVUnuiWAX7/4ZvbzuHENUShEEV4G0M38mQ/+R8DpHxwpCSrtEaSRaUMwdyUSn/WVqR7wo9+jkLCxFjE5feCURQ==}
 
+  '@substreams/core@0.1.19':
+    resolution: {integrity: sha512-GEEkhJb1XUkBvlRzlA7JOXJnS5XmKO4C6ZPz2djxKkRr98EEWH2C1EGCiK/vBYt2trsOVnq/fYizaqRl6vXW5Q==}
+
+  '@substreams/core@0.16.0':
+    resolution: {integrity: sha512-1HDFEZvH5EkHFykBfekqBtm3YKFWIMMHQaSa1T+Z8u4wcn8DIaiVOywvBtVmBT6R2pBaqbz4j14ndXN6r+IV6Q==}
+    peerDependencies:
+      '@bufbuild/protobuf': ^1.7.2
+      '@connectrpc/connect': ^1.3.0
+
+  '@substreams/manifest@0.0.9':
+    resolution: {integrity: sha512-U/azNhOZle3S6lUCpnQ+P90V8GvtQWMMH8hEX3/TCPRz/hkOFm1PG0+6t6VYVgXX+yTCPrAVpYiyGUdfkaW9Bw==}
+
   '@tsconfig/node10@1.0.11':
     resolution: {integrity: sha512-DcRjDCujK/kCk/cUe8Xz8ZSpm8mS3mNNpta+jGCA6USEDfktlNvm1+IuZ9eTcDbNk41BHwpHHeW+N1lKCz4zOw==}
 
@@ -647,6 +753,10 @@ packages:
 
   end-of-stream@1.4.5:
     resolution: {integrity: sha512-ooEGc6HP26xXq/N+GCGOT0JKCLDGrq2bQUZrQ7gyrJiZANJ/8YDTxTpQBXGMn+WbIQXNVpyWymm7KYVICQnyOg==}
+
+  fast-check@3.23.2:
+    resolution: {integrity: sha512-h5+1OzzfCC3Ef7VbtKdcv7zsstUQwUDlYpUTvjeUsJAssPgLn7QzbboPtL5ro04Mq0rPOsMzl7q5hIbRs2wD1A==}
+    engines: {node: '>=8.0.0'}
 
   fast-copy@3.0.2:
     resolution: {integrity: sha512-dl0O9Vhju8IrcLndv2eU4ldt1ftXMqqfgN4H1cpmGV7P6jeB9FwpN9a2c8DPGE1Ys88rNUJVYDHq73CGAGOPfQ==}
@@ -747,6 +857,9 @@ packages:
   pump@3.0.3:
     resolution: {integrity: sha512-todwxLMY7/heScKmntwQG8CXVkWUOdYxIvY2s0VWAAMh/nd8SoYiRaKjlr7+iCs984f2P8zvrfWcDDYVb73NfA==}
 
+  pure-rand@6.1.0:
+    resolution: {integrity: sha512-bVWawvoZoBYpp6yIoQtQXHZjmz35RSVHnUOTefl8Vcjr8snTPY1wnpSPMWekcFwbxI6gtmT7rSYPFvz71ldiOA==}
+
   quick-format-unescaped@4.0.4:
     resolution: {integrity: sha512-tYC1Q1hgyRuHgloV/YXs2w15unPVh8qfu/qCTfhTYamaw7fyhumKa2yGpdSo87vY32rIclj+4fWYQXUMs9EHvg==}
 
@@ -844,6 +957,11 @@ packages:
 
   wrappy@1.0.2:
     resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}
+
+  yaml@2.8.1:
+    resolution: {integrity: sha512-lcYcMxX2PO9XMGvAJkJ3OsNMw+/7FKes7/hgerGUYWIoWu5j/+YQqcZr5JnPZWzOsEBgMbSbiSTn/dv/69Mkpw==}
+    engines: {node: '>= 14.6'}
+    hasBin: true
 
   yn@3.1.1:
     resolution: {integrity: sha512-Ux4ygGWsu2c7isFWe8Yu1YluJmqVhxqK2cLXNQA5AcC3QfbGNpM7fu0Y8b/z16pXLnFxZYvWhd3fhBY9DLmC6Q==}
@@ -1317,15 +1435,73 @@ snapshots:
       '@smithy/types': 4.3.2
       tslib: 2.8.1
 
+  '@bufbuild/buf-darwin-arm64@1.57.0':
+    optional: true
+
+  '@bufbuild/buf-darwin-x64@1.57.0':
+    optional: true
+
+  '@bufbuild/buf-linux-aarch64@1.57.0':
+    optional: true
+
+  '@bufbuild/buf-linux-armv7@1.57.0':
+    optional: true
+
+  '@bufbuild/buf-linux-x64@1.57.0':
+    optional: true
+
+  '@bufbuild/buf-win32-arm64@1.57.0':
+    optional: true
+
+  '@bufbuild/buf-win32-x64@1.57.0':
+    optional: true
+
+  '@bufbuild/buf@1.57.0':
+    optionalDependencies:
+      '@bufbuild/buf-darwin-arm64': 1.57.0
+      '@bufbuild/buf-darwin-x64': 1.57.0
+      '@bufbuild/buf-linux-aarch64': 1.57.0
+      '@bufbuild/buf-linux-armv7': 1.57.0
+      '@bufbuild/buf-linux-x64': 1.57.0
+      '@bufbuild/buf-win32-arm64': 1.57.0
+      '@bufbuild/buf-win32-x64': 1.57.0
+
+  '@bufbuild/connect@0.12.0(@bufbuild/protobuf@1.8.0)':
+    dependencies:
+      '@bufbuild/protobuf': 1.8.0
+
+  '@bufbuild/protobuf@1.8.0': {}
+
   '@clickhouse/client-common@1.12.1': {}
 
   '@clickhouse/client@1.12.1':
     dependencies:
       '@clickhouse/client-common': 1.12.1
 
+  '@connectrpc/connect-web@1.3.0(@bufbuild/protobuf@1.8.0)(@connectrpc/connect@1.3.0(@bufbuild/protobuf@1.8.0))':
+    dependencies:
+      '@bufbuild/protobuf': 1.8.0
+      '@connectrpc/connect': 1.3.0(@bufbuild/protobuf@1.8.0)
+
+  '@connectrpc/connect@1.3.0(@bufbuild/protobuf@1.8.0)':
+    dependencies:
+      '@bufbuild/protobuf': 1.8.0
+
   '@cspotcode/source-map-support@0.8.1':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.9
+
+  '@effect/data@0.17.6': {}
+
+  '@effect/io@0.37.1':
+    dependencies:
+      '@effect/data': 0.17.6
+
+  '@effect/schema@0.32.0':
+    dependencies:
+      '@effect/data': 0.17.6
+      '@effect/io': 0.37.1
+      fast-check: 3.23.2
 
   '@jridgewell/resolve-uri@3.1.2': {}
 
@@ -1848,6 +2024,24 @@ snapshots:
 
   '@subsquid/util-timeout@2.3.2': {}
 
+  '@substreams/core@0.1.19':
+    dependencies:
+      '@bufbuild/connect': 0.12.0(@bufbuild/protobuf@1.8.0)
+      '@bufbuild/protobuf': 1.8.0
+
+  '@substreams/core@0.16.0(@bufbuild/protobuf@1.8.0)(@connectrpc/connect@1.3.0(@bufbuild/protobuf@1.8.0))':
+    dependencies:
+      '@bufbuild/protobuf': 1.8.0
+      '@connectrpc/connect': 1.3.0(@bufbuild/protobuf@1.8.0)
+
+  '@substreams/manifest@0.0.9':
+    dependencies:
+      '@bufbuild/buf': 1.57.0
+      '@bufbuild/protobuf': 1.8.0
+      '@effect/schema': 0.32.0
+      '@substreams/core': 0.1.19
+      yaml: 2.8.1
+
   '@tsconfig/node10@1.0.11': {}
 
   '@tsconfig/node12@1.0.11': {}
@@ -1908,6 +2102,10 @@ snapshots:
   end-of-stream@1.4.5:
     dependencies:
       once: 1.4.0
+
+  fast-check@3.23.2:
+    dependencies:
+      pure-rand: 6.1.0
 
   fast-copy@3.0.2: {}
 
@@ -2019,6 +2217,8 @@ snapshots:
       end-of-stream: 1.4.5
       once: 1.4.0
 
+  pure-rand@6.1.0: {}
+
   quick-format-unescaped@4.0.4: {}
 
   readable-stream@3.6.2:
@@ -2098,5 +2298,7 @@ snapshots:
   web-streams-polyfill@3.3.3: {}
 
   wrappy@1.0.2: {}
+
+  yaml@2.8.1: {}
 
   yn@3.1.1: {}
