@@ -1,4 +1,4 @@
-import { logger, createClickhouseClient } from './utils'
+import { logger, createClickhouseClient, debugDatabase } from './utils'
 import { indexEnsEvents } from './indexers/ens.indexer'
 import { getConfig } from '../config'
 

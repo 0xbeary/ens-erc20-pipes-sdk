@@ -4,6 +4,7 @@ export {
   ensureTables,
   createClickhouseClient,
   toUnixTime,
+  debugDatabase,
 } from './clickhouse'
 
 // Database batch utilities

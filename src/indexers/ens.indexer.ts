@@ -1,7 +1,7 @@
 import { ClickHouseClient } from '@clickhouse/client'
 import { ClickhouseState } from '@sqd-pipes/core'
 
-import { DatabaseBatch, ensureTables, getDefaultRollback, logger } from '../utils'
+import { DatabaseBatch, ensureTables, getDefaultRollback, logger, debugDatabase } from '../utils'
 import { EnsEventStream } from '../streams/ens.stream'
 
 const TABLE_PREFIX = 'ens_evt'
@@ -34,6 +34,9 @@ export async function indexEnsEvents(
   network: Network = 'ethereum-mainnet',
 ) {
   await ensureTables(client, './src/db/sql/ens.sql')
+  
+  logger.info('Checking database state...')
+  await debugDatabase(client)
 
   const ensEvents = EnsEventStream({
     portal: `${portalUrl}/datasets/${network}`,
@@ -53,6 +56,24 @@ export async function indexEnsEvents(
   const dbBatch = new DatabaseBatch(client)
 
   for await (const blocks of stream) {
+    logger.info(`Processing ${blocks.length} blocks`)
+    
+    for (const block of blocks) {
+      const totalEvents = (block.Approval?.length || 0) + (block.Claim?.length || 0) + 
+                         (block.DelegateChanged?.length || 0) + (block.DelegateVotesChanged?.length || 0) + 
+                         (block.MerkleRootChanged?.length || 0) + (block.OwnershipTransferred?.length || 0) + 
+                         (block.Transfer?.length || 0)
+                         
+      logger.info(`Block events: Approval=${block.Approval?.length || 0}, Claim=${block.Claim?.length || 0}, DelegateChanged=${block.DelegateChanged?.length || 0}, DelegateVotesChanged=${block.DelegateVotesChanged?.length || 0}, MerkleRootChanged=${block.MerkleRootChanged?.length || 0}, OwnershipTransferred=${block.OwnershipTransferred?.length || 0}, Transfer=${block.Transfer?.length || 0} (Total: ${totalEvents})`)
+      
+      if (block.Approval && block.Approval.length > 0) {
+        logger.info(`Found ${block.Approval.length} Approval events - sample: ${JSON.stringify(block.Approval[0], null, 2)}`)
+      }
+      if (block.Transfer && block.Transfer.length > 0) {
+        logger.info(`Found ${block.Transfer.length} Transfer events - sample: ${JSON.stringify(block.Transfer[0], null, 2)}`)
+      }
+    }
+
     await Promise.all(
       blocks.flatMap((block) => [
         dbBatch.insert(block.Approval, APPROVAL_TABLE),

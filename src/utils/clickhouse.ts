@@ -51,3 +51,27 @@ export function createClickhouseClient() {
 export function toUnixTime(date: Date): number {
   return Math.floor(date.getTime() / 1000);
 }
+
+export async function debugDatabase(clickhouse: ClickHouseClient) {
+  try {
+    // List all tables
+    const tablesResult = await clickhouse.query({
+      query: 'SHOW TABLES',
+      format: 'JSONEachRow',
+    });
+    const tables = await tablesResult.json() as Array<{ name: string }>;
+    console.log('Tables:', tables);
+
+    // Check row counts for each table
+    for (const table of tables) {
+      const countResult = await clickhouse.query({
+        query: `SELECT COUNT(*) as count FROM ${table.name}`,
+        format: 'JSONEachRow',
+      });
+      const count = await countResult.json() as Array<{ count: string }>;
+      console.log(`Table ${table.name}: ${count[0].count} rows`);
+    }
+  } catch (e) {
+    console.error('Debug failed:', e);
+  }
+}
